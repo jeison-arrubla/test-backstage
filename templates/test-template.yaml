@@ -1,0 +1,95 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: test-template
+  title: Test Template
+  description: End-to-end application provisioning with automated infrastructure setup including Git repository, Docker containerization, CI/CD pipelines, and Kubernetes deployment manifests
+spec:
+  owner: user:guest
+  type: service
+
+  parameters:
+    - title: Application Information
+      required:
+        - projectName
+        - repositoryName
+        - templateFolder
+        - technicalLeader
+        - qaLeader
+        - namespace
+        - environment
+      properties:
+        projectName:
+          title: Project Name
+          type: string
+          description: Select the project to which this application belongs
+          enum:
+            - Infraestructura
+            - Dominio de Lealtad
+            - Dominio de Cuentas
+            - Dominio de Negocios
+            - Dominio de Usuarios
+            - Artefactos transversales
+
+        repositoryName:
+          title: Repository Name
+          type: string
+          description: Provide a repository name
+
+        templateFolder:
+          title: Template Folder
+          type: string
+          description: Template folder to use
+          enum:
+            - backend
+            - frontend
+            - fullstack
+          enumNames:
+            - Backend
+            - Frontend
+            - Fullstack
+
+        technicalLeader:
+          title: Technical Leader Email
+          type: string
+          description: Email of the technical leader
+
+        qaLeader:
+          title: QA Leader Email
+          type: string
+          description: Email of the QA leader
+
+        namespace:
+          title: Namespace
+          type: string
+
+        environment:
+          title: Environment
+          type: string
+          description: The environment where this application will be deployed
+          enum:
+            - dev
+            - qa
+            - prod
+          enumNames:
+            - Dev
+            - QA
+            - Prod
+
+  steps:
+    - id: create-application
+      name: Create Application
+      action: pco:ansible:createApplication
+      input:
+        projectName: ${{ parameters.projectName }}
+        repositoryName: ${{ parameters.repositoryName }}
+        templateFolder: ${{ parameters.templateFolder }}
+        technicalLeader: ${{ parameters.technicalLeader }}
+        qaLeader: ${{ parameters.qaLeader }}
+        namespace: ${{ parameters.namespace }}
+        environment: ${{ parameters.environment }}
+
+  output:
+    text:
+      - title: Ansible Job ID
+        content: ${{ steps['create-application'].output.jobId }}
